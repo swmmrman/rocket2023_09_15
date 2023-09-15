@@ -1,4 +1,5 @@
 #[macro_use] extern crate rocket;
+use rocket::http::{CookieJar,Cookie,SameSite};
 
 #[get("/")]
 fn index() -> &'static str {
@@ -15,8 +16,19 @@ fn hello() -> &'static str {
     "Hello world"
 }
 
+#[get("/get_cookie")]
+fn get_cookie(jar: &CookieJar<'_>) -> &'static str{
+    jar.add(Cookie::new("Key", "Value"));
+    "Cookie Set"
+}
+
+#[get("/check_cookie")]
+fn check_cookie(jar: &CookieJar<'_>) -> Option<String>{
+    jar.get("Key").map(|val| format!("The result was {}", val))
+}
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index2,index,hello])
+        .mount("/", routes![index2,index,hello,get_cookie,check_cookie])
 }
